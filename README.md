@@ -13,4 +13,5 @@ Site communautaire *Web 3* basique développé en **Solidity** et **TypeScript**
 ## Outils utilisés
 
 Pour pouvoir tester simplement mes contrats, j'ai utilisé le framework [Hardhat](https://hardhat.org/).
+
 Utilisation de [RaimbowKit](https://www.rainbowkit.com/fr) pour connecter son wallet simplement.
