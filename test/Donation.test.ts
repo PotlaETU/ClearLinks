@@ -2,7 +2,7 @@ import { expect, assert } from "chai";
 import { ethers } from "hardhat";
 import { Donation } from "../typechain-types";
 
-describe("Lock", function () {
+describe("Donation", function () {
   let donation: Donation;
 
   before(async function () {
