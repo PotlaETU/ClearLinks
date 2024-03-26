@@ -7,12 +7,12 @@ async function main() {
 
   await donationContract.waitForDeployment();
 
-  console.log(`Donation contract deployed to: ${donationContract.getAddress()}`);
+  console.log(`Donation contract deployed to: ${(await donationContract.getAddress()).toString()}`);
 
   if (network.name === "goerli") {
     console.log("Verifying contract on Etherscan . . .");
     await donationContract.deploymentTransaction()?.wait(5);
-    await verify((await donationContract.getAddress()), []);
+    await verify(((await donationContract.getAddress()).toString()), []);
   }
 }
 

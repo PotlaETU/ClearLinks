@@ -3,50 +3,46 @@ pragma solidity ^0.8.24;
 
 
 contract Donation {
-        event NewMessageFromDonor(
-            address indexed from,
-            uint256 timestamp,
-            string name,
-            string message
-        );
+    event NewMessageFromDonor(
+        address indexed from,
+        uint256 timestamp,
+        string name,
+        string message
+    );
 
-        event CreatorRegistered(
-            address indexed from,
-            string name,
-            string description
-        );
+    event CreatorRegistered(
+        address indexed from,
+        string name,
+        string description
+    );
 
-        event Withdraw(
-            address indexed from,
-            uint256 amount
-        );
+    event Withdraw(
+        address indexed from,
+        uint256 amount
+    );
 
-        // Message donateur type
-        struct MessageFromDonor {
-            address from;
-            uint256 timestamp;
-            string name;
-            string message;
-        }
+    // Message donateur type
+    struct MessageFromDonor {
+        address from;
+        uint256 timestamp;
+        string name;
+        string message;
+    }
 
-        // Créateur type
-        struct Creator{
-            string name;
-            string description;
-            uint256 balance;
-        }
+    // Créateur type
+    struct Creator{
+        string name;
+        string description;
+        uint256 balance;
+    }
 
-        // Liste des donations (avec message) reçues
-        MessageFromDonor[] messagesFromDonors;
+    // Liste des donations (avec message) reçues
+    MessageFromDonor[] messagesFromDonors;
 
-        mapping(address=>Creator) creators;
-        
-        /*Adresse vers laquelle on donne*/
-        address payable owner;
+    mapping(address=>Creator) creators;
 
-        constructor(){
-            owner = payable(msg.sender);
-        }
+    mapping(address=>bool) isCreator;
+    
 
     /**
     @dev Fonction qui permet de faire une donation
@@ -76,24 +72,35 @@ contract Donation {
     @param _name Nom du créateur (voir struct Creator)
     @param _description Description du créateur (voir struct Creator)
      */
-    function registerCreator(string memory _name, string memory _description) public {
+    function registerCreator(string memory _name, string memory _description, address _creatorAddress) public {
         require(bytes(_name).length > 0, "Name must be defined");
         require(bytes(_description).length > 0, "Description must be defined");
 
-        creators[msg.sender] = Creator(_name, _description, 0);
-        emit CreatorRegistered(msg.sender, _name, _description);
+        creators[_creatorAddress] = Creator(_name, _description, 0);
+        isCreator[_creatorAddress] = true;
+        emit CreatorRegistered(_creatorAddress, _name, _description);
     }
 
+    /**
+    @dev Fonction qui retourne un créateur en fonction de son adresse
+    @param creatorAddress Adresse du créateur
+     */
+    function getCreator(address creatorAddress) public view returns(Creator memory) {
+        return creators[creatorAddress];
+    }
+
+    
     /**
     @dev Le créateur récupère ses donations
      */
     function withdraw() public {
+        require(isCreator[msg.sender], "You are not a creator !");
+
         uint256 amount = creators[msg.sender].balance;
 
         require(amount>0, "Can't withdraw 0 ETH !");
-
         require(address(this).balance>=amount, "Not enough to withdraw");
-
+        
         creators[msg.sender].balance -= amount;
         payable(msg.sender).transfer(amount);
 
