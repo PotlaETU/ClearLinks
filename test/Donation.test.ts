@@ -22,6 +22,8 @@ describe("Lock", function () {
         expect(creator.balance).to.equal(0);
       });
 
+      
+
       // On teste la donation (méthode la plus importante)
       it("Should emit NewMessageFromDonor event and update creator balance on donation", async function () {
         const donationAmount = ethers.parseEther("1.0");
