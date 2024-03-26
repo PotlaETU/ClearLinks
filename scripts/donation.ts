@@ -9,7 +9,7 @@ async function main() {
 
   console.log(`Donation contract deployed to: ${(await donationContract.getAddress()).toString()}`);
 
-  if (network.name === "goerli") {
+  if (network.name === "sepolia") {
     console.log("Verifying contract on Etherscan . . .");
     await donationContract.deploymentTransaction()?.wait(5);
     await verify(((await donationContract.getAddress()).toString()), []);
