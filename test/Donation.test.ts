@@ -39,7 +39,7 @@ describe("Donation", function () {
     });
 
     // it("Should withdraw creator balance", async function () {
-    //   donation.withdraw()
+    //   donation.connect(creatorAddress).withdraw()
     //   const creator = await donation.getCreator(creatorAddress);
     //   expect(creator.balance).to.equal(0);
     // });
