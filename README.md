@@ -1,6 +1,6 @@
 # ClearLinks
 
-Site communautaire *Web 3* basique développé en **Solidity** et **TypeScript**
+Contrats du site communautaire *Web 3 développés en **Solidity** et **TypeScript**
 
 ## Fonctionnalités principales
 
