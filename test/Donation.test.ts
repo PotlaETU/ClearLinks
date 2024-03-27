@@ -34,6 +34,7 @@ describe("Donation", function () {
       const donationAmount = { value: ethers.parseEther("1") }
       const donorName = "Alice";
       const donorMessage = "Force mon reuf";
+      
       creator = await donation.getCreator(creatorAddress);
       console.log("Avant donation: ", creator.balance.toString());
 
@@ -47,19 +48,24 @@ describe("Donation", function () {
     it("Should withdraw creator balance", async function () {
       console.log("Addresse du créateur qui withdraw: ", creatorAddress.toString());
       let creator = await donation.getCreator(creatorAddress);
+      
       console.log("Montant à retirer : ", creator.balance.toString());
       await expect(donation.connect(this.addrs[0]).withdraw()).to.emit(donation, "Withdraw");
+      
       creator = await donation.getCreator(creatorAddress);
       console.log("Balance du créateur après le withdraw : ", creator.balance.toString());
+      
       assert(creator.balance.toString(), "0");
     });
 
     // On teste la récupération des messages d'un donateur
     it("Should get the messages from a donar", async function () {
       const messages = await donation.getMessages();
+      
       for (const message of messages) {
         console.log("Message: ", message);
       }
+      
       expect(messages[0].from).to.equal(this.addr1.address);
       expect(messages[0].name).to.equal("Alice");
       expect(messages[0].message).to.equal("Force mon reuf");
