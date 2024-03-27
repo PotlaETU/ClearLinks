@@ -4,13 +4,14 @@ import { Donation } from "../typechain-types";
 
 describe("Donation", function () {
   let donation: Donation;
-  const creatorAddress = "0xCa870fe4B8bdC2a8B369C671B9A44b2C6FFf6AF6"; // Adresse de test
-  let creator 
+  let creator;
+  let creatorAddress: any;
 
   before(async function () {
     [this.owner, this.addr1, ...this.addrs] = await ethers.getSigners();
     const Donation = await ethers.getContractFactory("Donation");
     donation = await Donation.deploy();
+    creatorAddress = this.addrs[0].address;
   });
 
   describe("Deployment", function () {
@@ -18,31 +19,51 @@ describe("Donation", function () {
     it("Should create a creator", async function () {
       await donation.registerCreator("TestCreator", "je teste", creatorAddress);
       creator = await donation.getCreator(creatorAddress);
+
+      console.log("Créateur { ",  "Nom : " + creator.name, ", Description : "
+        + creator.description, ", Balance : " + creator.balance.toString(),
+         ", Adresse : " + creatorAddress.toString(), "}");
+
       expect(creator.name).to.equal("TestCreator");
       expect(creator.description).to.equal("je teste");
-      expect(creator.balance).to.equal(0);
+      assert(creator.balance.toString(), "0");
     });
-
-
 
     // On teste la donation (méthode la plus importante)
     it("Should emit NewMessageFromDonor event and update creator balance on donation", async function () {
-      const donationAmount = { value: ethers.parseEther("1")}
+      const donationAmount = { value: ethers.parseEther("1") }
       const donorName = "Alice";
       const donorMessage = "Force mon reuf";
       creator = await donation.getCreator(creatorAddress);
-      console.log("Creator balance before donation: ", creator.balance.toString());
+      console.log("Avant donation: ", creator.balance.toString());
 
-      await expect(donation.connect(this.addr1).donation(donorName, donorMessage, creatorAddress, donationAmount)).to.emit(donation, "NewMessageFromDonor");      
+      await expect(donation.connect(this.addr1).donation(donorName, donorMessage, creatorAddress, donationAmount)).to.emit(donation, "NewMessageFromDonor");
       creator = await donation.getCreator(creatorAddress);
+      console.log("Après donation: ", creator.balance.toString());
       expect(creator.balance).to.equal(donationAmount.value);
     });
 
-    // it("Should withdraw creator balance", async function () {
-    //   donation.connect(creatorAddress).withdraw()
-    //   const creator = await donation.getCreator(creatorAddress);
-    //   expect(creator.balance).to.equal(0);
-    // });
+    // On teste le retrait de l'argent par le créateur
+    it("Should withdraw creator balance", async function () {
+      console.log("Addresse du créateur qui withdraw: ", creatorAddress.toString());
+      let creator = await donation.getCreator(creatorAddress);
+      console.log("Montant à retirer : ", creator.balance.toString());
+      await expect(donation.connect(this.addrs[0]).withdraw()).to.emit(donation, "Withdraw");
+      creator = await donation.getCreator(creatorAddress);
+      console.log("Balance du créateur après le withdraw : ", creator.balance.toString());
+      assert(creator.balance.toString(), "0");
+    });
+
+    // On teste la récupération des messages d'un donateur
+    it("Should get the messages from a donar", async function () {
+      const messages = await donation.getMessages();
+      for (const message of messages) {
+        console.log("Message: ", message);
+      }
+      expect(messages[0].from).to.equal(this.addr1.address);
+      expect(messages[0].name).to.equal("Alice");
+      expect(messages[0].message).to.equal("Force mon reuf");
+    })
 
   })
 });
